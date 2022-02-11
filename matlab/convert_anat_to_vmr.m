@@ -30,7 +30,8 @@ function convert_anat_to_vmr(saveName, fileName)
 %    neuroelf          https://neuroelf.net/
 %
 %
-% See also CONVERT_SURF_TO_SRF, CONVERT_FUNC_TO_VTC, CONVERT_FUNC_TO_MTC
+% See also CONVERT_SURF_TO_SRF, CONVERT_FUNC_TO_VTC, CONVERT_FUNC_TO_MTC, 
+%          CONVERT_CONFOUNDS_TO_SDM
 
 % Written by Kelly Chang - February 10, 2022
 
