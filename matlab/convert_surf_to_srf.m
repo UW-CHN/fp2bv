@@ -29,7 +29,8 @@ function convert_surf_to_srf(saveName, fileName, trf)
 %    neuroelf          https://neuroelf.net/
 %
 %
-% See also CONVERT_ANAT_TO_VMR, CONVERT_FUNC_TO_VTC, CONVERT_FUNC_TO_MTC
+% See also CONVERT_ANAT_TO_VMR, CONVERT_FUNC_TO_VTC, CONVERT_FUNC_TO_MTC, 
+%          CONVERT_CONFOUNDS_TO_SDM
 
 % Written by Kelly Chang - February 10, 2022
 

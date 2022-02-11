@@ -23,7 +23,8 @@ function convert_func_to_mtc(saveName, fileName)
 %    neuroelf          https://neuroelf.net/
 %
 %
-% See also CONVERT_ANAT_TO_VMR, CONVERT_SURF_TO_SRF, CONVERT_FUNC_TO_VTC
+% See also CONVERT_ANAT_TO_VMR, CONVERT_SURF_TO_SRF, CONVERT_FUNC_TO_VTC, 
+%          CONVERT_CONFOUNDS_TO_SDM
 
 % Written by Kelly Chang - February 10, 2022
 
