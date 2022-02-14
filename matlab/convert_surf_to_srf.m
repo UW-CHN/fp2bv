@@ -103,7 +103,7 @@ switch fileExt
         faces = gii.faces;
     case {'.midthick', '.pial', '.smoothwm'}
         % FreeSurfer surface files
-        filePath = format_fspath(fileName);
+        filePath = format_escaped_path(fileName);
         [vertices,faces] = freesurfer_read_surf(filePath);
 end
 

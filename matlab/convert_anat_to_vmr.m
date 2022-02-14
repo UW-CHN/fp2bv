@@ -96,11 +96,11 @@ n = neuroelf;
 switch fileExt
     case {'.mgz'}
         
-        filePath = format_fspath(fileName);
+        filePath = format_escaped_path(fileName);
         
         [savePath,~,~] = extract_fileparts(saveName);
         niiName = fullfile(savePath, [name, '.nii.gz']);
-        niiPath = format_fspath(niiName);
+        niiPath = format_escaped_path(niiName);
         
         mriConvert = sprintf('mri_convert %s %s', filePath, niiPath);
         system(mriConvert); % convert .mgz to .nii.gz
