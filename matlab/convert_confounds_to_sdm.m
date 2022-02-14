@@ -74,7 +74,7 @@ end
 
 % read confound file and coerce data type
 tsv = tdfread(fileName);
-tsv = structfun(@coerce_str2double, tsv, 'UniformOutput', false);
+tsv = structfun(@coerce_to_double, tsv, 'UniformOutput', false);
 
 flds = fieldnames(tsv);
 sdmMatrix = struct2array(tsv);
@@ -89,3 +89,14 @@ sdm.PredictorNames = flds';
 sdm.SDMMatrix = sdmMatrix;
 sdm.SaveAs(saveName); % save sdm file
 sdm.ClearObject; clear sdm; % clear handle
+
+%% Helper Functions
+
+function [d] = coerce_to_double(x)
+% Coerces input 'x' into doubles, operating row-wise for strings.
+
+if ischar(x)
+    d = cellfun(@str2double, num2cell(x,2));
+else
+    d = double(x);
+end
