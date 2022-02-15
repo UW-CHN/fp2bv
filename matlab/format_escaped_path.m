@@ -19,4 +19,3 @@ function [fileName] = format_escaped_path(fileName)
 %% Format File Name
 
 fileName = regexprep(fileName, '([ \\\[\]\(\)])', '\\$1');
-fileName = regexprep(fileName, '\/', ':');
