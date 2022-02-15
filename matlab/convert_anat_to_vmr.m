@@ -118,7 +118,7 @@ switch fileExt
         anatSpace = extract_bids(fileName, 'space');
         
         referenceSpace = 0; % UNKNOWN
-        if strcmp(anatSpace, 'T1w')
+        if isempty(anatSpace) || strcmp(anatSpace, 'T1w') 
             referenceSpace = 1; % NATIVE
         elseif contains(anatSpace, 'MNI')
             referenceSpace = 4; % MNI
