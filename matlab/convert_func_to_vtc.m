@@ -85,9 +85,11 @@ elseif contains(funcSpace, 'MNI')
 end
 
 header = niftiinfo(fileName);
-voxelRes = max(header.PixelDimensions(2:4));
+voxelRes = max(header.PixelDimensions(1:3));
+funcTR = header.PixelDimensions(4); % seconds
 
 vtc = n.importvtcfromanalyze({ fileName }, [], voxelRes);
 vtc.ReferenceSpace = referenceSpace; % assign reference space
+vtc.TR = funcTR .* 1e3; % repetition time, ms
 vtc.SaveAs(saveName); % save vtc file
 vtc.ClearObject; clear vtc; % clear object handle
