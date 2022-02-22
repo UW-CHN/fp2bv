@@ -40,10 +40,10 @@ for i = 1:length(subjectList) % for each subject
     fileList = fileList(~[fileList.isdir]); % exclude directories
     fileList = fullfile({fileList.folder}, {fileList.name});
     
-    subjectFiles(i).subject = subjectName;
+    clear s; s.subject = subjectName; % temporary structure
     p = structfun(@(x) fileList(regexp_contains(fileList,x)), ...
         filePat, 'UniformOutput', false);
-    subjectFiles(i) = structassign(subjectFiles(i), p);
+    subjectFiles(i) = structassign(s, p);
 end
 
 %% Helper Functions
@@ -59,4 +59,6 @@ function [targetStruct] = structassign(targetStruct, inputStruct)
     for f = 1:length(flds) % for each field
         targetStruct.(flds{f}) = inputStruct.(flds{f});
     end
+end
+
 end
