@@ -34,7 +34,7 @@ subjectList = subjectList([subjectList.isdir]);
 subjectList = fullfile({subjectList.folder}, {subjectList.name});
 
 for i = 1:length(subjectList) % for each subject
-    [~,subjectName] = extract_fileparts(subjectList);
+    [~,subjectName] = extract_fileparts(subjectList{i});
     
     fileList = dir(fullfile(subjectList{i}, '**', '*.*'));
     fileList = fileList(~[fileList.isdir]); % exclude directories
