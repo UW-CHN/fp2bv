@@ -33,7 +33,7 @@ neFlag = which('neuroelf'); % check neuroelf
 if isempty(neFlag) && (isempty(paths.neuroelf) || ~isfolder(paths.neuroelf))
     error('Unable to locate neuroelf dependency from given path.');
 else
-    addpath(genpath(paths.gifti)); % add neuroelf to path
+    addpath(genpath(paths.neuroelf)); % add neuroelf to path
 end
 
 %% Check and Load FreeSurfer Dependency
