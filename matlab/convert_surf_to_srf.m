@@ -24,9 +24,9 @@ function convert_surf_to_srf(saveName, fileName, trf)
 %
 %
 % Dependencies: 
-%    gifti             https://www.artefact.tk/software/matlab/gifti/
+%    GIfTI             https://www.artefact.tk/software/matlab/gifti/
 %    FreeSurfer        https://surfer.nmr.mgh.harvard.edu/
-%    neuroelf          https://neuroelf.net/
+%    NeuroElf          https://neuroelf.net/
 %
 %
 % See also CONVERT_ANAT_TO_VMR, CONVERT_FUNC_TO_VTC, CONVERT_FUNC_TO_MTC, 
@@ -48,7 +48,7 @@ if isempty(flag)
     error('The neuroelf dependency was not found on path.');
 end
 
-%%% Dependecy: check if FreeSurfer's freesurfer_read_surf is available.
+%%% Dependency: check if FreeSurfer's freesurfer_read_surf is available.
 flag = which('freesurfer_read_surf'); 
 if isempty(flag)
     error('The FreeSurfer ''freesurfer_read_surf'' dependency was not found on path.');
@@ -59,9 +59,19 @@ if ~exist('saveName', 'var') || isempty(saveName)
     error('Cannot provide empty ''saveName''.');
 end
 
+%%% Format: Check 'saveName' data type.
+if ~ischar(saveName)
+    error('Invalid data type. Supplied ''fileName'' must be a character.');
+end
+
 %%% Exist: Check if 'fileName' exists.
 if ~exist('fileName', 'var') || isempty(fileName)
     error('Cannot provide empty ''fileName''.');
+end
+
+%%% Format: Check 'fileName' data type.
+if ~ischar(fileName)
+    error('Invalid data type. Supplied ''fileName'' must be a character.');
 end
 
 %%% Exists: check if 'fileName' exists on disk.

@@ -19,8 +19,8 @@ function convert_func_to_mtc(saveName, fileName)
 %
 %
 % Dependencies:
-%    gifti             https://www.artefact.tk/software/matlab/gifti/
-%    neuroelf          https://neuroelf.net/
+%    GIfTI             https://www.artefact.tk/software/matlab/gifti/
+%    NeuroElf          https://neuroelf.net/
 %
 %
 % See also CONVERT_ANAT_TO_VMR, CONVERT_SURF_TO_SRF, CONVERT_FUNC_TO_VTC, 
@@ -47,9 +47,19 @@ if ~exist('saveName', 'var') || isempty(saveName)
     error('Cannot provide empty ''saveName''.');
 end
 
+%%% Format: Check 'saveName' data type.
+if ~ischar(saveName)
+    error('Invalid data type. Supplied ''saveName'' must be a character.');
+end
+
 %%% Exist: Check if 'fileName' exists.
 if ~exist('fileName', 'var') || isempty(fileName)
     error('Cannot provide empty ''fileName''.');
+end
+
+%%% Format: Check 'fileName' data type.
+if ~ischar(fileName)
+    error('Invalid data type. Supplied ''fileName'' must be a character.');
 end
 
 %%% Exists: check if 'fileName' exists on disk.
