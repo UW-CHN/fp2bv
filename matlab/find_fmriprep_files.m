@@ -1,5 +1,19 @@
-function [subjectFiles] = find_fmriprep_files(fmriPrepPath, subjectSubset)
-%% [subjectFiles] = FIND_FMRIPREP_FILES(fmriprepPath)
+function [subjectInfo] = find_fmriprep_files(fmriPrepPath, subjectSubset)
+% [subjectInfo] = FIND_FMRIPREP_FILES(fmriprepPath [, subjectSubset])
+%
+% Locates fMRIPrep files to be converted from the given fMRIPrep
+% derivatives directory.
+%
+%
+% Arguments:
+%   fmriPrepPath        String, path to fMRIPrep output directory.
+% 
+%   [subjectSubset]     Cell or string, list of subject labels to locate
+%                       (default: all subjects in fmriPrepPath will be 
+%                       processed). Optional.
+%
+%
+% See also CONVERT_FP2BV
 
 % Written by Kelly Chang - February 15, 2022
 
@@ -10,17 +24,27 @@ if ~exist('fmriPrepPath', 'var') || isempty(fmriPrepPath)
     error('Cannot provide empty ''fmriPrepPath''.');
 end
 
-%%% Exists: Check if 'fmriPrepPath' exists on disk.
-if ~isfolder(fmriPrepPath)
-    error('Unable to locate directort ''%s''.', fmriPrepPath);
+%%% Format: Check 'fmriPrepPath' data type.
+if ~ischar(fmriPrepPath)
+    error('Invalid data type. Supplied ''fmriPrepPath'' must be a character.');
 end
 
-%%% Exists: Check if 'subjectList' exists.
+%%% Exists: Check if 'fmriPrepPath' exists on disk.
+if ~isfolder(fmriPrepPath)
+    error('Unable to locate directory ''%s''.', fmriPrepPath);
+end
+
+%%% Exists: Check if 'subjectSubset' exists.
 if ~exist('subjectSubset', 'var') || isempty(subjectSubset)
     subjectSubset = {}; 
 end
 
-%%% Format: Check 'subjectList' data type.
+%%% Format: Check 'subjectSubset' data type.
+if ~iscell(subjectSubset) || ~ischar(subjectSubset)
+    error('Invalid data type. Supplied ''subjectSubset'' must be a cell or character.');
+end
+
+%%% Format: Convert 'subjectSubset' data type.
 if ischar(subjectSubset)
     subjectSubset = {subjectSubset}; 
 end
@@ -62,7 +86,7 @@ for i = 1:length(subjectList) % for each subject
     p = structfun(@(x) fileList(regexp_contains(fileList,x)), ...
         filePat, 'UniformOutput', false); 
     if ~isempty(p.surf2anat); p.surf2anat = char(p.surf2anat); end
-    subjectFiles(i) = structassign(s, p);
+    subjectInfo(i) = structassign(s, p);
 end
 
 %% Create BrainVoyager Derivatives Directories and File Names
@@ -71,8 +95,8 @@ end
 bvPath = fullfile(basePath, 'brainvoyager'); 
 mkfolder(bvPath); % create brainvoyager directory
 
-for i = 1:length(subjectFiles) % for each subject
-    p = subjectFiles(i); % current subject
+for i = 1:length(subjectInfo) % for each subject
+    p = subjectInfo(i); % current subject
     
     out = struct(); % initialize 
     
@@ -119,7 +143,7 @@ for i = 1:length(subjectFiles) % for each subject
         cellfun(@mkfolder, unique(funcDir)); % create functional directories
     end
     
-    subjectFiles(i).save = out;
+    subjectInfo(i).save = out;
 end
 
 %% Helper Functions

@@ -1,7 +1,27 @@
 function load_dependencies(paths)
 % LOAD_DEPENDENCIES(paths)
+%
+% Loads fmriprep-to-brainvoyager package dependencies to the current MATLAB
+% pathing instance.
+%
+%
+% Arguments:
+%   paths               Structure, contains the paths to dependencies as 
+%                       fields.
+%      
+%     gifti             String, path to GIfTI dependency.
+%
+%     freesurfer        String, path to FreeSurfer dependency.
+%
+%     neuroelf          String, path to NeuroElf dependency.
+%
+% 
+% Dependencies:
+%    GIfTI             https://www.artefact.tk/software/matlab/gifti/
+%    FreeSurfer        https://surfer.nmr.mgh.harvard.edu/
+%    NeuroElf          https://neuroelf.net/
 
-% Written by Kelly Chang - February 15, 2022
+% Written by Kelly Chang - March 16, 2022
 
 %% Input Control
 
@@ -11,8 +31,8 @@ if ~exist('paths', 'var') || isempty(paths)
 end
 
 %%% Exists: check if 'paths' has all dependencies as fields.
-flds = fieldnames(paths);
-allDependencies = {'gifti', 'neuroelf', 'freesurfer'};
+flds = fieldnames(paths); % extract given paths fieldnames
+allDependencies = {'gifti', 'freesurfer', 'neuroelf'};
 if ~all(ismember(allDependencies, flds))
     missingFlds = strjoin(setdiff(allDependencies, flds), ', ');
     error('Missing dependency field in ''path'' for: %s', missingFlds);

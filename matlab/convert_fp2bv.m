@@ -1,13 +1,30 @@
 function convert_fp2bv(subjectInfo, overwrite)
+% CONVERT_FP2BV(subjectInfo [, overwrite])
+%
+% Converts fMRIPrep output files to BrainVoyager compatiable file formats.
+%
+%
+% Arguments:
+%   subjectInfo         Structure, output from FIND_FMRIPREP_FILES.
+% 
+%   [overwrite]         Logical, flag to overwrite existing BrainVoyager 
+%                       files or not (default: false). Optional. 
+%
+%
+% See also FIND_FMRIPREP_FILES
+
+% Written by Kelly Chang - March 16, 2022
 
 %% Input Control
 
+%%% Exist: Check is 'overwrite' exists.
 if ~exist('overwrite', 'var') || isempty(overwrite)
-    overwrite = false;
+    overwrite = false; % assign default
 end
 
+%%% Format: Check 'overwrite' data type.
 if ~islogical(overwrite)
-    error('Overwrite must be a logical data type.');
+    error('Invalid data type. Supplied ''overwrite'' must be a logical.');
 end
 
 %% Convert fMRIPrep to BrainVoyager Files
