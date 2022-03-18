@@ -43,7 +43,7 @@ if isempty(flag)
     error('The neuroelf dependency was not found on path.');
 end
 
-%%% Dependecy: check if FreeSurfer's mri_convert is available.
+%%% Dependency: check if FreeSurfer's mri_convert is available.
 [status,~] = system('mri_convert --help');
 if status > 0
     errMsg = sprintf([
@@ -58,9 +58,19 @@ if ~exist('saveName', 'var') || isempty(saveName)
     error('Cannot provide empty ''saveName''.');
 end
 
+%%% Format: Check 'saveName' data type.
+if ~ischar(saveName)
+    error('Invalid data type. Supplied ''saveName'' must be a character.');
+end
+
 %%% Exist: Check if 'fileName' exists.
 if ~exist('fileName', 'var') || isempty(fileName)
     error('Cannot provide empty ''fileName''.');
+end
+
+%%% Format: Check 'fileName' data type.
+if ~ischar(fileName)
+    error('Invalid data type. Supplied ''fileName'' must be a character.');
 end
 
 %%% Exists: check if 'fileName' exists on disk.
