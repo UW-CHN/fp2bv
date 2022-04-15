@@ -40,7 +40,7 @@ if ~exist('subjectSubset', 'var') || isempty(subjectSubset)
 end
 
 %%% Format: Check 'subjectSubset' data type.
-if ~iscell(subjectSubset) || ~ischar(subjectSubset)
+if ~iscell(subjectSubset) && ~ischar(subjectSubset)
     error('Invalid data type. Supplied ''subjectSubset'' must be a cell or character.');
 end
 
