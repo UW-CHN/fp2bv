@@ -37,7 +37,7 @@ end
 %% Read XFM File Transformation Matrix Contents
 
 trf = []; % initialize transformation matrix
-fid = fopen(filename, 'r'); % open file, read only
+fid = fopen(fileName, 'r'); % open file, read only
 while isempty(trf) 
     fline = fgetl(fid);
     if startsWith(fline, 'Parameters:')
