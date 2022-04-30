@@ -41,18 +41,18 @@ end
 %% Check and Load gifti Dependency
 
 giftiFlag = which('gifti'); % check gifti
-if isempty(giftiFlag) && (isempty(paths.gifti) || ~isfolder(paths.gifti))
+if (isempty(paths.gifti) || ~isfolder(paths.gifti))
     error('Unable to locate gifti dependency from given path.');
-else
+elseif isempty(giftiFlag)
     addpath(genpath(paths.gifti)); % add gifti to path
 end
 
 %% Check and Load neuroelf Dependency
 
 neFlag = which('neuroelf'); % check neuroelf
-if isempty(neFlag) && (isempty(paths.neuroelf) || ~isfolder(paths.neuroelf))
+if (isempty(paths.neuroelf) || ~isfolder(paths.neuroelf))
     error('Unable to locate neuroelf dependency from given path.');
-else
+elseif isempty(neFlag)
     addpath(genpath(paths.neuroelf)); % add neuroelf to path
 end
 
@@ -87,15 +87,15 @@ end
 
 dependencyFlags = true(1, length(allDependencies) + 1);
 dependencyFlags(1) = isempty(which('gifti')); 
-dependencyFlags(2) = isempty(which('neuroelf')); 
-dependencyFlags(3) = isempty(which('freesurfer_read_surf')); 
+dependencyFlags(2) = isempty(which('freesurfer_read_surf')); 
 [flag,~] = system('mri_convert --help');
-dependencyFlags(4) = flag > 0; 
+dependencyFlags(3) = flag > 0; 
+dependencyFlags(4) = isempty(which('neuroelf')); 
 
 if any(dependencyFlags)
-    if dependencyFlags(4)
-        dependencyFlags(3) = true; 
-        dependencyFlags = dependencyFlags(1:3);
+    if dependencyFlags(3)
+        dependencyFlags(2) = true; 
+        dependencyFlags = dependencyFlags([1, 2, 4]);
     end
     errorDependencies = strjoin(allDependencies(dependencyFlags), ', '); 
     error('Unable to load dependencies: %s', errorDependencies); 
