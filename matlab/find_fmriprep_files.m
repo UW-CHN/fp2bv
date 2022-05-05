@@ -1,4 +1,4 @@
-function [subjectInfo] = find_fmriprep_files(fmriPrepPath, subjectSubset)
+function [subjectInfo] = find_fmriprep_files(fmriPrepPath, subjectSubset, saveLabel)
 % [subjectInfo] = FIND_FMRIPREP_FILES(fmriprepPath [, subjectSubset])
 %
 % Locates fMRIPrep files to be converted from the given fMRIPrep
@@ -11,6 +11,10 @@ function [subjectInfo] = find_fmriprep_files(fmriPrepPath, subjectSubset)
 %   [subjectSubset]     Cell or string, list of subject labels to locate
 %                       (default: all subjects in fmriPrepPath will be 
 %                       processed). Optional.
+%
+%   [saveLabel]         String, additional label added to the output 
+%                       directory name (e.g., 'brainvoyager[-<label>]')
+%                       (default: no label). Optional.
 %
 %
 % See also CONVERT_FP2BV
@@ -47,6 +51,16 @@ end
 %%% Format: Convert 'subjectSubset' data type.
 if ischar(subjectSubset)
     subjectSubset = {subjectSubset}; 
+end
+
+%%% Exists: Check if 'saveLabel' exists.
+if ~exist('saveLabel', 'var') || isempty(saveLabel)
+    saveLabel = '';
+end
+
+%%% Format: Check 'saveLabel' data type
+if ~ischar(saveLabel)
+    error('Invalid data type. Supplied ''saveLabel'' must be a character.'); 
 end
 
 %% File Type Patterns
@@ -92,7 +106,9 @@ end
 %% Create BrainVoyager Derivatives Directories and File Names
 
 [basePath,~,~] = extract_fileparts(fmriPrepPath);
-bvPath = fullfile(basePath, 'brainvoyager'); 
+bvDirName = 'brainvoyager'; % initialize brainvoyager output directory name
+if ~isempty(saveLabel); bvDirName = sprintf('%s-%s', bvDirName, saveLabel); end
+bvPath = fullfile(basePath, bvDirName); % brainvoyager output directory
 mkfolder(bvPath); % create brainvoyager directory
 
 for i = 1:length(subjectInfo) % for each subject
