@@ -1,17 +1,17 @@
-function [filePath,name,ext] = extract_fileparts(fileName)
-% [filePath,name,ext] = EXTRACT_FILEPARTS(fileName)
+function [fpath,name,ext] = extract_fileparts(fname)
+% [fpath,name,ext] = EXTRACT_FILEPARTS(fileName)
 % 
 % Extracts the given file name's path, base name, and extension including
 % compression extensions (e.g., '.gz', '.zip').
 %
 %
 % Argument:
-%   fileName            String, file name.
+%   fname               String, file name.
 %                       Example: '/path/to/filename.nii.gz'
 %
 %
 % Outputs:
-%   filePath            String, file paths.
+%   fpath               String, file paths.
 %                       Example: '/path/to'
 % 
 %   name                String, file base name.
@@ -26,8 +26,8 @@ function [filePath,name,ext] = extract_fileparts(fileName)
 
 %% Extract File Parts
  
-fileName = char(fileName); 
-[filePath,name,ext] = fileparts(fileName);
+fname = char(fname); 
+[fpath,name,ext] = fileparts(fname);
 
 % if compressed file, extract base name again
 if any(strcmp(ext, {'.gz', '.zip'})) 

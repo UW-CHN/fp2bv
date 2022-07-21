@@ -50,11 +50,11 @@ if ~exist('withKey', 'var') || isempty(withKey)
     withKey = false;
 end
 
-%%% Format: Check for accepted BIDS key' entities.
+%%% Format: Check for accepted BIDS key entities.
 key = lower(key); % force lowercase
 validKeys = {'sub', 'ses', 'task', 'acq', 'ce', 'rec', 'dir', 'run', ...
     'mod', 'echo', 'flip', 'inv', 'mt', 'part', 'recording', 'space', ...
-    'hemi', 'label', 'desc', 'modality'};
+    'hemi', 'res', 'label', 'desc', 'suffix'};
 if ~any(strcmp(key, validKeys))
     error('Unrecognized BIDS ''key'' entity (%s).', key);
 end
@@ -64,8 +64,8 @@ end
 [~,fileName,~] = extract_fileparts(fileName);
 fileBids = strsplit(fileName, '_');
 
-if strcmp(key, 'modality')
-    % modality is always the last value
+if strcmp(key, 'suffix')
+    % suffix is always the last value without a key
     value = fileBids{end};
 else % all other key entities
     keyIndx = contains(fileBids, sprintf('%s-', key));

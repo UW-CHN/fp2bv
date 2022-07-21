@@ -109,8 +109,8 @@ end
 switch fileExt
     case {'.gii', '.gii.gz'} % GIfTI files
         gii = gifti(fileName);
-        vertices = gii.vertices;
         faces = gii.faces;
+        vertices = gii.vertices;
     case {'.midthick', '.pial', '.smoothwm'}
         % FreeSurfer surface files
         filePath = format_escaped_path(fileName);
@@ -118,31 +118,62 @@ switch fileExt
 end
 
 % coerce data to type
-vertices = double(vertices);
 faces = double(faces);
+vertices = double(vertices);
 
-srf = xff('new:srf'); % initialize srf file
-srf.ExtendedNeighbors = 1; % enable additional resampling methods
+% save surface file, reduce mesh complexity until savable
+prop = 1; 
+savedStatus = false;
+while ~savedStatus
+    try
+        if prop ~= 1 % if any reduction performed
+            propStr = sprintf('reduce%2d', prop * 100);
+            saveName = regexprep(saveName, '_(\w+\.surf\.gii)$', ...
+                ['_', propStr, '_$1']);
+        end
+        savedStatus = save_srf(faces, vertices, trf, saveName); 
+    catch
+        prop = 1 - 0.05; % reduction factor
+        if prop < 0.25; break; end % minimum reduction limit = 25%
+        [faces,vertices] = reducepatch(faces, vertices, prop);
+    end
+end
 
-% LPI to ASR transformation matrix
-lpi2asr = [0 0 -1; -1 0 0; 0 -1 0];
 
-srf.NrOfVertices = size(vertices, 1); % number of vertices
-srf.VertexCoordinate = (vertices - 128) * lpi2asr; % assign vertex coordinates
+end
 
-srf.NrOfTriangles = size(faces, 1); % number of facs
-srf.TriangleVertex = faces; % assign triangle faces
+%% Helper Functions
 
-srf.Neighbors = srf.TrianglesToNeighbors(); % calculate neighbors
-srf = srf.RecalcNormals(); % calculate vertex normals
+function [status] = save_srf(faces, vertices, trf, saveName)
+    status = false; % initalize save status
 
-% surface color options
-srf.VertexColor = zeros(size(vertices,1), 4);
-srf.ConvexRGBA = [0.322 0.733 0.98 1];
-srf.ConcaveRGBA = [0.322 0.733 0.98 1];
+    srf = xff('new:srf'); % initialize srf file
+    srf.ExtendedNeighbors = 1; % enable additional resampling methods
 
-% apply transformation matrix to surface
-srf = srf.Transform(trf); 
+    % LPI to ASR transformation matrix
+    lpi2asr = [0 0 -1; -1 0 0; 0 -1 0];
 
-srf.SaveAs(saveName); % save srf file
-srf.ClearObject; clear srf; % clear srf handle
+    srf.NrOfVertices = size(vertices, 1); % number of vertices
+    srf.VertexCoordinate = (vertices - 128) * lpi2asr; % assign vertex coordinates
+
+    srf.NrOfTriangles = size(faces, 1); % number of faces
+    srf.TriangleVertex = faces; % assign triangle faces
+
+    srf.Neighbors = srf.TrianglesToNeighbors(); % calculate neighbors
+    srf = srf.RecalcNormals(); % calculate vertex normals
+
+    % surface color options
+    srf.VertexColor = zeros(size(vertices,1), 4);
+    srf.ConvexRGBA = [0.322 0.733 0.98 1];
+    srf.ConcaveRGBA = [0.322 0.733 0.98 1];
+
+    % apply transformation matrix to surface
+    srf = srf.Transform(trf); 
+
+    srf.SaveAs(saveName); % save srf file
+    srf.ClearObject; clear srf; % clear srf handle
+    status = true; % if saved srf file
+end
+
+function decimate_surface(face, vertices, prop)
+end
