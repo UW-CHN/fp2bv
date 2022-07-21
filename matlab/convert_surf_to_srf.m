@@ -127,9 +127,9 @@ savedStatus = false;
 while ~savedStatus
     try
         if prop ~= 1 % if any reduction performed
-            propStr = sprintf('reduce%2d', prop * 100);
-            saveName = regexprep(saveName, '_(\w+\.surf\.gii)$', ...
-                ['_', propStr, '_$1']);
+            propStr = sprintf('res-reduce%2d', prop * 100);
+            saveName = regexprep(saveName, '_(\w+)\.srf$', ...
+                ['_', propStr, '_$1.srf']);
         end
         savedStatus = save_srf(faces, vertices, trf, saveName); 
     catch
