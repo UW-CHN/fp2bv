@@ -1,0 +1,6 @@
+[submodule "externals/neuroelf-matlab"]
+	path = externals/neuroelf-matlab
+	url = https://github.com/neuroelf/neuroelf-matlab.git
+[submodule "externals/gifti"]
+	path = externals/gifti
+	url = https://github.com/gllmflndn/gifti.git
