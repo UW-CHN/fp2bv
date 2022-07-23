@@ -1,14 +1,14 @@
-function convert_surf_to_srf(saveName, fileName, trf)
-% CONVERT_SURF_TO_SRF(saveName, fileName [, trf])
+function [saveName] = convert_surf_to_srf(saveName, fileName, trf)
+% [saveName] = CONVERT_SURF_TO_SRF(saveName, fileName [, trf])
 %
-% Converts fMRIPrep's surface anatomical files to BrainVoyager's 
+% Converts fMRIPrep's surface anatomical files to BrainVoyager's
 % compatiable files.
 %
-% Accepted fMRIPrep file extensions: 
+% Accepted fMRIPrep file extensions:
 %   GIfTI: .gii, .gii.gz
 %   FreeSurfer surface extentions: .midthick, .pial, .smoothwm
 % Resulting BrainVoyager file extension: .srf
-% 
+%
 %
 % Arguments:
 %   saveName            String, name to save the BrainVoyager file as.
@@ -22,14 +22,22 @@ function convert_surf_to_srf(saveName, fileName, trf)
 %   [trf]               A 4x4 transformation matrix that is applied to the
 %                       surface, optional.
 %
+% Output: 
+%   saveName            String, name of the saved the BrainVoyager file.
+%                       Could be different than the original name because 
+%                       of mesh reduction.
+%                       Example:
+%                           '[...]_hemi-L_smoothwm.srf'
+%                           '[...]_hemi-L[_res-reduce95]_smoothwm.srf'
 %
-% Dependencies: 
+%
+% Dependencies:
 %    GIfTI             https://www.artefact.tk/software/matlab/gifti/
 %    FreeSurfer        https://surfer.nmr.mgh.harvard.edu/
 %    NeuroElf          https://neuroelf.net/
 %
 %
-% See also CONVERT_ANAT_TO_VMR, CONVERT_FUNC_TO_VTC, CONVERT_FUNC_TO_MTC, 
+% See also CONVERT_ANAT_TO_VMR, CONVERT_FUNC_TO_VTC, CONVERT_FUNC_TO_MTC,
 %          CONVERT_CONFOUNDS_TO_SDM
 
 % Written by Kelly Chang - February 10, 2022
@@ -37,9 +45,9 @@ function convert_surf_to_srf(saveName, fileName, trf)
 %% Input Control
 
 %%% Dependency: check if gifti is avaiable.
-flag = which('gifti'); 
+flag = which('gifti');
 if isempty(flag)
-    error('The ''gifti'' dependency was not found on path.'); 
+    error('The ''gifti'' dependency was not found on path.');
 end
 
 %%% Dependency: check if neuroelf is available.
@@ -49,7 +57,7 @@ if isempty(flag)
 end
 
 %%% Dependency: check if FreeSurfer's freesurfer_read_surf is available.
-flag = which('freesurfer_read_surf'); 
+flag = which('freesurfer_read_surf');
 if isempty(flag)
     error('The FreeSurfer ''freesurfer_read_surf'' dependency was not found on path.');
 end
@@ -90,7 +98,7 @@ if ~strcmp(saveExt, '.srf')
     errMsg = sprintf([
         'Unrecognized ''saveName'' extension format (%s).\n', ...
         'Extension must be .srf.'
-    ], saveExt);
+        ], saveExt);
     error(errMsg, saveExt);
 end
 
@@ -100,7 +108,7 @@ if ~strcmp(fileExt, {'.gii', '.gii.gz', '.midthick', '.pial', '.smoothwm'})
     errMsg = sprintf([
         'Unrecognized ''fileName'' extension (%s).\n', ...
         'Accepted extensions: .gii, .gii.gz, .midthick, .pial, .smoothwm'
-    ], fileExt);
+        ], fileExt);
     error(errMsg, fileExt);
 end
 
@@ -117,63 +125,61 @@ switch fileExt
         [vertices,faces] = freesurfer_read_surf(filePath);
 end
 
+% turn off warnings because of neuroelf
+warning('off', 'all'); 
+
 % coerce data to type
 faces = double(faces);
 vertices = double(vertices);
 
 % save surface file, reduce mesh complexity until savable
-prop = 1; 
 savedStatus = false;
-while ~savedStatus
+prop = 0.99; propLimit = 0.33; 
+while ~savedStatus && prop > propLimit
     try
-        if prop ~= 1 % if any reduction performed
-            propStr = sprintf('res-reduce%2d', prop * 100);
+        
+        %%% try to save srf file
+        srf = xff('new:srf'); % initialize srf file
+        srf.ExtendedNeighbors = 1; % enable additional resampling methods
+        
+        % LPI to ASR transformation matrix
+        lpi2asr = [0 0 -1; -1 0 0; 0 -1 0];
+        
+        srf.NrOfVertices = size(vertices, 1); % number of vertices
+        srf.VertexCoordinate = (vertices - 128) * lpi2asr; % assign vertex coordinates
+        
+        srf.NrOfTriangles = size(faces, 1); % number of faces
+        srf.TriangleVertex = faces; % assign triangle faces
+        
+        srf.Neighbors = srf.TrianglesToNeighbors(); % calculate neighbors
+        srf = srf.RecalcNormals(); % calculate vertex normals
+        
+        % surface color options
+        srf.VertexColor = zeros(size(vertices,1), 4);
+        srf.ConvexRGBA = [0.322 0.733 0.98 1];
+        srf.ConcaveRGBA = [0.322 0.733 0.98 1];
+        
+        % apply transformation matrix to surface
+        srf = srf.Transform(trf);
+        
+        % rewrite save name if any reduction performed
+        if prop < 0.99 % if any reduction performed
+            propStr = sprintf('res-reduce%2d', round((prop + 0.01) * 100));
             saveName = regexprep(saveName, '_(\w+)\.srf$', ...
                 ['_', propStr, '_$1.srf']);
         end
-        savedStatus = save_srf(faces, vertices, trf, saveName); 
+        
+        % save srf object
+        srf.SaveAs(saveName); % save srf file
+        srf.ClearObject; clear srf; % clear srf handle
+        savedStatus = true; % if saved srf file
+        
     catch
-        prop = 1 - 0.05; % reduction factor
-        if prop < 0.25; break; end % minimum reduction limit = 25%
+        fprintf('    Reducing Mesh by %2d%%\n', round(prop * 100)); 
         [faces,vertices] = reducepatch(faces, vertices, prop);
+        prop = prop - 0.01; % reduce proportion factor
     end
 end
 
-
-end
-
-%% Helper Functions
-
-function [status] = save_srf(faces, vertices, trf, saveName)
-    status = false; % initalize save status
-
-    srf = xff('new:srf'); % initialize srf file
-    srf.ExtendedNeighbors = 1; % enable additional resampling methods
-
-    % LPI to ASR transformation matrix
-    lpi2asr = [0 0 -1; -1 0 0; 0 -1 0];
-
-    srf.NrOfVertices = size(vertices, 1); % number of vertices
-    srf.VertexCoordinate = (vertices - 128) * lpi2asr; % assign vertex coordinates
-
-    srf.NrOfTriangles = size(faces, 1); % number of faces
-    srf.TriangleVertex = faces; % assign triangle faces
-
-    srf.Neighbors = srf.TrianglesToNeighbors(); % calculate neighbors
-    srf = srf.RecalcNormals(); % calculate vertex normals
-
-    % surface color options
-    srf.VertexColor = zeros(size(vertices,1), 4);
-    srf.ConvexRGBA = [0.322 0.733 0.98 1];
-    srf.ConcaveRGBA = [0.322 0.733 0.98 1];
-
-    % apply transformation matrix to surface
-    srf = srf.Transform(trf); 
-
-    srf.SaveAs(saveName); % save srf file
-    srf.ClearObject; clear srf; % clear srf handle
-    status = true; % if saved srf file
-end
-
-function decimate_surface(face, vertices, prop)
-end
+% turn on warnings
+warning('on', 'all');

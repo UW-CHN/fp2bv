@@ -54,6 +54,11 @@ end
 
 %% Helper Function
 
+function [tf] = contains_regexp(str, pat)
+    patternMatch = regexp(str, pat, 'once');
+    tf = ~cellfun(@isempty, patternMatch);
+end
+
 function [fun] = get_convert_function(modality)
     switch modality
         case 'anat'; fun = @convert_anat_to_vmr;
@@ -64,27 +69,48 @@ function [fun] = get_convert_function(modality)
     end
 end
 
-function convert_wrapper(p, modality)
-    modality = lower(modality);
-    inputFiles = p.(modality); outputFiles = p.save.(modality);
-    convert_function = get_convert_function(modality); 
+function [srfFile] = find_reduce_srf(f)
+    [fpath,fname] = fileparts(f);
+    srfPattern = regexprep(fname, '_(\w+)$', '(_res-reduce\\d{2})?_$1');
+    srfList = dir(fullfile(fpath, '*.srf')); srfList = {srfList.name};
+    srfFile = srfList(contains_regexp(srfList, srfPattern));
+end
+
+function [tf] = issrf(f)
+    tf = ~isempty(find_reduce_srf(f));
+end
+
+function [fname] = filename(f)
+    [~,name,ext] = fileparts(f); 
+    fname = [name ext]; 
+end
+
+function convert_wrapper(p, suffix)
+    suffix = lower(suffix);
+    inputFiles = p.(suffix); outputFiles = p.save.(suffix);
+    convert_function = get_convert_function(suffix); 
 
     if length(inputFiles) < 1 % if no files to convert
         fprintf('  No files to convert, skipping conversion process\n');
     else % convert files
         for f = 1:length(inputFiles)
-            % if file *does* exist AND do *not* overwrite, skip
+            %%% if file *exists* AND do *not* overwrite, skip
             if isfile(outputFiles{f}) && ~overwrite
-                fprintf('  Exists: %s\n', outputFiles{f});
+                fprintf('  Exists: %s\n', filename(outputFiles{f}));
+            %%% if surface file *exists* AND do *not* overwrite, skip  
+            elseif issrf(outputFiles{f}) && ~overwrite
+                srfFile = find_reduce_srf(outputFiles{f});
+                fprintf('  Exists: %s\n', filename(srfFile));
             else % all other conditions
-                if strcmp(modality, 'surf')
+                fprintf('  Converting: %s\n', filename(inputFiles{f}));
+                if strcmp(suffix, 'surf')
                     trf = read_xfm(p.surf2anat); % extract transformation matrix
-                    convert_function(outputFiles{f}, inputFiles{f}, trf);
+                    outputFiles{f} = convert_function(outputFiles{f}, ...
+                        inputFiles{f}, trf);
                 else
                     convert_function(outputFiles{f}, inputFiles{f});
                 end
-                fprintf('  Converted: %s to %s\n', ...
-                    inputFiles{f}, outputFiles{f})
+                fprintf('  Converted:  %s\n', filename(outputFiles{f}));
             end
         end
     end

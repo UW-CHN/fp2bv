@@ -97,7 +97,7 @@ for i = 1:length(subjectList) % for each subject
     fileList = fullfile({fileList.folder}, {fileList.name});
     
     clear s; s.subject = subjectName; % temporary structure
-    p = structfun(@(x) fileList(regexp_contains(fileList,x)), ...
+    p = structfun(@(x) fileList(contains_regexp(fileList,x)), ...
         filePat, 'UniformOutput', false); 
     if ~isempty(p.surf2anat); p.surf2anat = char(p.surf2anat); end
     subjectInfo(i) = structassign(s, p);
@@ -128,8 +128,8 @@ for i = 1:length(subjectInfo) % for each subject
         out.anat = fullfile(anatDir, bvAnat); 
         
         % brainvoyager surface file names
-        bvSurf = convert_filenames(p.surf, 'surf'); 
-        out.surf = fullfile(anatDir, bvSurf); 
+        bvSurf = convert_filenames(p.surf, 'surf');
+        out.surf = fullfile(anatDir, bvSurf);
     end
     
     if ~isempty(p.vtc) || ~isempty(p.mtc)
@@ -164,11 +164,10 @@ end
 
 %% Helper Functions
 
-function [tf] = regexp_contains(str, pat)
+function [tf] = contains_regexp(str, pat)
     patternMatch = regexp(str, pat, 'once');
     tf = ~cellfun(@isempty, patternMatch);
 end
-
 
 function [targetStruct] = structassign(targetStruct, inputStruct)
     flds = fieldnames(inputStruct);
