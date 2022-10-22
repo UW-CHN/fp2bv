@@ -100,13 +100,12 @@ sdm.SDMMatrix = sdmMatrix;
 sdm.SaveAs(saveName); % save sdm file
 sdm.ClearObject; clear sdm; % clear handle
 
+end
+
 %% Helper Functions
 
 function [d] = coerce_to_double(x)
-% Coerces input 'x' into doubles, operating row-wise for strings.
-
-if ischar(x)
-    d = cellfun(@str2double, num2cell(x,2));
-else
-    d = double(x);
+    % Coerces input 'x' into doubles, operating row-wise for strings.
+    if ischar(x); d = str2double(cellstr(x)); else; d = double(x); end
+    d(isnan(d)) = 0; % replace nans with zeros
 end
