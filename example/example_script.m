@@ -5,7 +5,7 @@ clear all; close all; clc;
 %% Directories
  
 %%% fmriprep-to-brainvoyager package
-paths.fp2bv = 'path/to/fmriprep-to-brainvoyager/directory';
+paths.fp2bv = 'path/to/fp2bv/directory';
 addpath(genpath(fullfile(paths.fp2bv, 'matlab'))); 
 
 %%% external dependencies
